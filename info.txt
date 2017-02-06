@@ -1,0 +1,7 @@
+Moyenne pondéré :
+
+https://fr.wikipedia.org/wiki/Moyenne_pond%C3%A9r%C3%A9e
+
+Moyenne mobile exponentielles :
+
+http://www.waldata.fr/analysetechnique/bibliotheque/moy_mob_exp.asp

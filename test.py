@@ -1,12 +1,20 @@
 #!/usr/bin/python3
 
-file = open("nike5.txt", "r");
-text = file.read();
-# print(text);
-i = 0;
 
-while i < 100:
-	print("wait")
-	i += 1
-print("buy 1")
-print("sell 1")
+i = 0;
+money = input();
+day_total = input();
+while i < int(day_total):
+	word = input();
+	print ("wait");
+	if int(day_total) - 1:
+		print("sell 1")
+	else:
+		print("buy 1")
+	i += 1;
+
+# word = input()
+# if (word == "--end--")
+# 	exit 0
+# else
+# 	exit 1
