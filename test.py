@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-
 i = 0;
 money = input();
 day_total = input();
