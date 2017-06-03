@@ -1,0 +1,104 @@
+#!/usr/bin/env python
+
+import sys, os
+from math import *
+
+# ------------ ** MATH FUNCTION ** --------------- #
+
+def computeMme(mme, share, day):
+    value = 2.0 / (day + 1.0)
+    out  = (value * share + (1.0 - value) * mme)
+    return out
+
+
+# ------------ ** UTILS FUNCTION ** --------------- #
+
+def buyShare(wallet, share):
+    shareBought = floor((wallet['capital']) / share)
+    percentage = share * shareBought + ceil(0.15 / 100 * (share * shareBought))
+    if wallet['capital'] - percentage < 0:
+        shareBought -= 1
+    if shareBought > 0:
+        wallet['capital'] = wallet['capital'] - share * shareBought - ceil((0.15 / 100.0 * (share * shareBought)))
+        wallet['share'] = wallet['share'] + shareBought
+        printBuy(shareBought)
+    else:
+        printWait()
+
+def sellShare(wallet, share):
+    if wallet['share'] > 0:
+        printSell(wallet['share'])
+        wallet['capital'] = wallet['capital'] + wallet['share'] * share - ceil((0.15 / 100.0 * (wallet['share'] * share)))
+        wallet['share'] = 0
+    else:
+        printWait()
+
+def buyOrSell(intelMme, wallet, share):
+    if intelMme['50'] > intelMme['150']:
+        buyShare(wallet, share)
+    elif intelMme['50'] < intelMme['150']:
+        sellShare(wallet, share)
+
+# ------------ ** CORE FUNCTION ** --------------- #
+
+def algoTrading(wallet, nbrDay):
+    currentDay = 1
+    currentShare = input()
+    intelMme = {}
+    intelMme['50'] = 0.0
+    intelMme['150'] = 0.0
+    while currentShare.upper() != "--END--":
+        try:
+            shareValue = int(currentShare)
+        except (ValueError):
+            print("Error: \'", currentShare, "\' must be an unsigned integer.", sep='')
+            currentShare = input()
+            continue
+        if currentDay == nbrDay and wallet['share'] > 0:
+            sellShare(wallet, shareValue)
+        else:
+            intelMme['50'] = computeMme(intelMme['50'], shareValue, 50)
+            intelMme['150'] = computeMme(intelMme['150'], shareValue, 150)
+            buyOrSell(intelMme, wallet, shareValue)
+        currentDay += 1
+        currentShare = input()
+
+# ------------ ** PARSE FUNCTION ** --------------- #
+
+def parseInput(str):
+    actualValue = 0
+    try:
+        actualValue = int(str)
+        if actualValue < 0:
+            raise ValueError("Negative Number")
+    except (ValueError):
+        print("Error : \'", str, "\' must be an unsigned integer.", sep='')
+        sys.exit(84)
+    return actualValue
+
+# ------------ ** PRINT FUNCTION ** --------------- #
+def printWait():
+    print("wait\n", end='')
+
+def printBuy(share):
+    print("buy {}".format(share))
+
+def printSell(share):
+    print("sell {}".format(share))
+
+
+# ------------ ** MAIN FUNCTION ** --------------- #
+
+def main():
+    share = 0
+    capital = parseInput(input())
+    nbrDay = parseInput(input())
+    wallet = {}
+    wallet['capital'] = capital
+    wallet['share'] = share
+    algoTrading(wallet, nbrDay)
+
+
+
+if __name__ == "__main__":
+    main()
