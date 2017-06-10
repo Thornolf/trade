@@ -4,14 +4,20 @@ import sys, os
 from math import *
 
 # ------------ ** MATH FUNCTION ** --------------- #
+# computeEma is use to get the exponential moving average
+# It take the previous EMA, the actual share and the actual day
+# It return the EMA value
 
-def computeMme(mme, share, day):
+def computeEma(ema, share, day):
     value = 2.0 / (day + 1.0)
-    out  = (value * share + (1.0 - value) * mme)
+    out  = (value * share + (1.0 - value) * ema)
     return out
 
 
 # ------------ ** UTILS FUNCTION ** --------------- #
+# buyShare allow us to buy share and print "buy" and
+# the number of share we want to buy
+# It takes our wallet & actual share
 
 def buyShare(wallet, share):
     shareBought = floor((wallet['capital']) / share)
@@ -25,6 +31,11 @@ def buyShare(wallet, share):
     else:
         printWait()
 
+# sellShare allow us to buy share and print "sell" and
+# the number of share we want to sell
+# It takes our wallet & actual share
+# If we can sell, we sell everything
+
 def sellShare(wallet, share):
     if wallet['share'] > 0:
         printSell(wallet['share'])
@@ -33,20 +44,26 @@ def sellShare(wallet, share):
     else:
         printWait()
 
-def buyOrSell(intelMme, wallet, share):
-    if intelMme['50'] > intelMme['150']:
-        buyShare(wallet, share)
-    elif intelMme['50'] < intelMme['150']:
+#buyOrSell check the EMA, if the curve goes up we sell,
+# if it goes down we buy
+
+def buyOrSell(intelEma, wallet, share):
+    if intelEma['50'] < intelEma['150']:
         sellShare(wallet, share)
+    elif intelEma['50'] > intelEma['150']:
+        buyShare(wallet, share)
 
 # ------------ ** CORE FUNCTION ** --------------- #
+# coreFunction handle the while loop and initiliaze the currentDay,
+# Setup the EMA with 50 days and 150 days that why in short run
+# we don't earn a lot
 
 def algoTrading(wallet, nbrDay):
     currentDay = 1
     currentShare = input()
-    intelMme = {}
-    intelMme['50'] = 0.0
-    intelMme['150'] = 0.0
+    intelEma = {}
+    intelEma['50'] = 0.0
+    intelEma['150'] = 0.0
     while currentShare.upper() != "--END--":
         try:
             shareValue = int(currentShare)
@@ -57,13 +74,14 @@ def algoTrading(wallet, nbrDay):
         if currentDay == nbrDay and wallet['share'] > 0:
             sellShare(wallet, shareValue)
         else:
-            intelMme['50'] = computeMme(intelMme['50'], shareValue, 50)
-            intelMme['150'] = computeMme(intelMme['150'], shareValue, 150)
-            buyOrSell(intelMme, wallet, shareValue)
+            intelEma['50'] = computeEma(intelEma['50'], shareValue, 50)
+            intelEma['150'] = computeEma(intelEma['150'], shareValue, 150)
+            buyOrSell(intelEma, wallet, shareValue)
         currentDay += 1
         currentShare = input()
 
 # ------------ ** PARSE FUNCTION ** --------------- #
+# Simple function to check if everything given in param is valid
 
 def parseInput(str):
     actualValue = 0
@@ -77,6 +95,8 @@ def parseInput(str):
     return actualValue
 
 # ------------ ** PRINT FUNCTION ** --------------- #
+# Simple function which print sell, buy or wait with arguemnts
+
 def printWait():
     print("wait\n", end='')
 
@@ -88,6 +108,7 @@ def printSell(share):
 
 
 # ------------ ** MAIN FUNCTION ** --------------- #
+# Main function where we initialize all functions
 
 def main():
     share = 0
